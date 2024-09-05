@@ -152,7 +152,6 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         self.time_embedding = TimestepEmbedding(timestep_input_dim, time_embed_dim)
 
         # class embedding
-        print(f"============================= {self.class_embed_type}")
         if class_embed_type is None and num_class_embeds is not None:
             self.class_embedding = nn.Embedding(num_class_embeds, time_embed_dim)
         elif class_embed_type == "timestep":
