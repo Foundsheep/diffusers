@@ -158,6 +158,8 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             self.class_embedding = TimestepEmbedding(timestep_input_dim, time_embed_dim)
         elif class_embed_type == "identity":
             self.class_embedding = nn.Identity(time_embed_dim, time_embed_dim)
+        elif class_embed_type == "vector":
+            self.class_embedding = nn.Linear(num_class_embeds, time_embed_dim)
         else:
             self.class_embedding = None
 
