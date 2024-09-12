@@ -103,9 +103,9 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         # up_block_types: Tuple[str, ...] = ("AttnUpBlock2D", "AttnUpBlock2D", "AttnUpBlock2D", "UpBlock2D"),
         # block_out_channels: Tuple[int, ...] = (224, 448, 672, 896),
 
-        down_block_types: Tuple[str, ...] = ("DownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D"),
-        up_block_types: Tuple[str, ...] = ("AttnUpBlock2D", "AttnUpBlock2D", "UpBlock2D"),
-        block_out_channels: Tuple[int, ...] = (32, 64, 128),
+        down_block_types: Tuple[str, ...] = ("DownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D"),
+        up_block_types: Tuple[str, ...] = ("AttnUpBlock2D", "AttnUpBlock2D", "AttnUpBlock2D", "UpBlock2D"),
+        block_out_channels: Tuple[int, ...] = (64, 128, 128, 256),
 
         layers_per_block: int = 2,
         mid_block_scale_factor: float = 1,
