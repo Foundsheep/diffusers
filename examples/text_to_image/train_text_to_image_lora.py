@@ -958,13 +958,11 @@ def main():
                 variant=args.variant,
                 torch_dtype=weight_dtype,
             )
+            print(f"<<<<< memory before>>>>>:\n{torch.cuda.mem_get_info()}")
 
             # load attention processors
             pipeline.load_lora_weights(args.output_dir)
 
-            # added by DJ
-            print(f"<<<<< memory before>>>>>:\n{torch.cuda.mem_get_info()}")
-            torch.cuda.empty_cache()
             print(f"<<<<< memory after >>>>>:\n{torch.cuda.mem_get_info()}")
 
             # run inference
