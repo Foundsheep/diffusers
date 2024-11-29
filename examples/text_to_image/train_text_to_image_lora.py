@@ -953,6 +953,14 @@ def main():
         # Final inference
         # Load previous pipeline
         if args.validation_prompt is not None:
+            print(f"<<<<<<<<<<<<<<<<< memory before >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+            del pipeline
+            torch.cuda.empty_cache()
+            print(f"<<<<<<<<<<<<<<<<< pipeline removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+            del optimizer
+            torch.cuda.empty_cache()
+            print(f"<<<<<<<<<<<<<<<<< optimizer removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+
             pipeline = DiffusionPipeline.from_pretrained(
                 args.pretrained_model_name_or_path,
                 revision=args.revision,
@@ -964,11 +972,20 @@ def main():
             pipeline.load_lora_weights(args.output_dir)
             
             del images
+            torch.cuda.empty_cache()
+            print(f"<<<<<<<<<<<<<<<<< images removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+
             del unwrapped_unet
+            torch.cuda.empty_cache()
+            print(f"<<<<<<<<<<<<<<<<< unwrapped_unet removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+
             del unet
+            torch.cuda.empty_cache()
+            print(f"<<<<<<<<<<<<<<<<< unet removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
+
             del unet_lora_state_dict
             torch.cuda.empty_cache()
-
+            print(f"<<<<<<<<<<<<<<<<< unet_lora_state_dict removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
             torch.cuda.memory._dump_snapshot("snapshot.pickle")
             
             # run inference
