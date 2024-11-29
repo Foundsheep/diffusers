@@ -936,6 +936,10 @@ def main():
                 del pipeline
                 torch.cuda.empty_cache()
 
+
+    torch.cuda.memory._record_memory_history()
+
+
     # Save the lora layers
     accelerator.wait_for_everyone()
     if accelerator.is_main_process:
@@ -958,13 +962,12 @@ def main():
                 variant=args.variant,
                 torch_dtype=weight_dtype,
             )
-            print(f"<<<<< memory before>>>>>:\n{torch.cuda.mem_get_info()}")
-
+            
             # load attention processors
             pipeline.load_lora_weights(args.output_dir)
 
-            print(f"<<<<< memory after >>>>>:\n{torch.cuda.mem_get_info()}")
-
+            torch.cuda.memory._dump_snapshot("snapshot.pickle")
+            
             # run inference
             images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
 
