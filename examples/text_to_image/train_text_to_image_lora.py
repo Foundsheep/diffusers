@@ -962,6 +962,11 @@ def main():
             # load attention processors
             pipeline.load_lora_weights(args.output_dir)
 
+            # added by DJ
+            print(f"<<<<< memory before>>>>>:\n{torch.cuda.mem_get_info()}")
+            torch.cuda.empty_cache()
+            print(f"<<<<< memory after >>>>>:\n{torch.cuda.mem_get_info()}")
+
             # run inference
             images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
 
