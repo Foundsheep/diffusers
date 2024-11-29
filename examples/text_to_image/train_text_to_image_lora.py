@@ -444,7 +444,9 @@ def main():
     print("========================================")
     print(f"{args}")
     print("========================================")
-        
+    torch.cuda.memory._record_memory_history()
+    
+    
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
             "You cannot use both --report_to=wandb and --hub_token due to a security risk of exposing your token."
@@ -935,10 +937,6 @@ def main():
 
                 del pipeline
                 torch.cuda.empty_cache()
-
-
-    torch.cuda.memory._record_memory_history()
-
 
     # Save the lora layers
     accelerator.wait_for_everyone()
