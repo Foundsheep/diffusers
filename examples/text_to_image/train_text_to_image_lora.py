@@ -954,9 +954,6 @@ def main():
         # Load previous pipeline
         if args.validation_prompt is not None:
             print(f"<<<<<<<<<<<<<<<<< memory before >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-            del pipeline
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< pipeline removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
             del optimizer
             torch.cuda.empty_cache()
             print(f"<<<<<<<<<<<<<<<<< optimizer removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
