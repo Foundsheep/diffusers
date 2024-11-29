@@ -444,7 +444,6 @@ def main():
     print("========================================")
     print(f"{args}")
     print("========================================")
-    torch.cuda.memory._record_memory_history()
     
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
@@ -953,11 +952,6 @@ def main():
         # Final inference
         # Load previous pipeline
         if args.validation_prompt is not None:
-            print(f"<<<<<<<<<<<<<<<<< memory before >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-            del optimizer
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< optimizer removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-
             pipeline = DiffusionPipeline.from_pretrained(
                 args.pretrained_model_name_or_path,
                 revision=args.revision,
@@ -968,25 +962,8 @@ def main():
             # load attention processors
             pipeline.load_lora_weights(args.output_dir)
             
-            del images
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< images removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-
-            del unwrapped_unet
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< unwrapped_unet removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-
-            del unet
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< unet removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-
-            del unet_lora_state_dict
-            torch.cuda.empty_cache()
-            print(f"<<<<<<<<<<<<<<<<< unet_lora_state_dict removed >>>>>>>>>>>>>>>>>\n{torch.cuda.mem_get_info()}")
-            torch.cuda.memory._dump_snapshot("snapshot.pickle")
-            
             # run inference
-            images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
+            # images = log_validation(pipeline, args, accelerator, epoch, is_final_validation=True)
 
         if args.push_to_hub:
             save_model_card(
