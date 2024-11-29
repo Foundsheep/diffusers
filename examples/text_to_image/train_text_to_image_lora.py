@@ -446,7 +446,6 @@ def main():
     print("========================================")
     torch.cuda.memory._record_memory_history()
     
-    
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
             "You cannot use both --report_to=wandb and --hub_token due to a security risk of exposing your token."
@@ -963,6 +962,12 @@ def main():
             
             # load attention processors
             pipeline.load_lora_weights(args.output_dir)
+            
+            del images
+            del unwrapped_unet
+            del unet
+            del unet_lora_state_dict
+            torch.cuda.empty_cache()
 
             torch.cuda.memory._dump_snapshot("snapshot.pickle")
             
