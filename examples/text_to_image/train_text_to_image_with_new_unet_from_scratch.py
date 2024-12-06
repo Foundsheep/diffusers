@@ -521,6 +521,17 @@ def parse_args():
             " This value is to be used to control the model size"
         )
     )
+    parser.add_argument(
+        "--unet_cross_attention_dim", 
+        type=int,
+        default=768,
+        help=(
+            "This value is to match the dimension of cross attention module in"
+            " unet model."
+            " But also it needs to be considered with other elements in cross attention"
+            " like encoder_hidden_states from pre-trained CLIP, which is 768"
+        )
+    )
     # ----------------------------------------------------------
 
     args = parser.parse_args()
@@ -645,6 +656,7 @@ def main():
     unet = UNet2DConditionModel(
         sample_size=args.unet_sample_size,
         block_out_channels=args.unet_block_out_channels,
+        cross_attention_dim=args.unet_cross_attention_dim,
     )
     def count_parameters(model):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
