@@ -504,7 +504,7 @@ def parse_args():
     # ----------------------------------------------------------
     parser.add_argument(
         "--unet_sample_size",
-        nargs="2",
+        nargs=2,
         help=(
             "The sample size value for newly initialised unet model."
             " This will be the size for input and output of the model"
@@ -512,7 +512,7 @@ def parse_args():
     )
     parser.add_argument(
         "--unet_block_out_channels",
-        nargs="4",
+        nargs=4W,
         help=(
             "The block out channels value for newly initialised unet model."
             " This will be the sizes of channels inside the model"
