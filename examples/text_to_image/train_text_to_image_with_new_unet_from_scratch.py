@@ -540,10 +540,6 @@ def parse_args():
 def main():
     args = parse_args()
     
-    logger.info("==================== passed arguments ======================")
-    logger.info(f"{args}")
-    logger.info("============================================================")
-
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
             "You cannot use both --report_to=wandb and --hub_token due to a security risk of exposing your token."
@@ -569,6 +565,10 @@ def main():
         log_with=args.report_to,
         project_config=accelerator_project_config,
     )
+
+    logger.info("==================== passed arguments ======================")
+    logger.info(f"{args}")
+    logger.info("============================================================")
 
     # Disable AMP for MPS.
     if torch.backends.mps.is_available():
