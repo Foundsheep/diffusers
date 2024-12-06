@@ -539,6 +539,10 @@ def parse_args():
 
 def main():
     args = parse_args()
+    
+    logger.info("==================== passed arguments ======================")
+    logger.info(f"{args}")
+    logger.info("============================================================")
 
     if args.report_to == "wandb" and args.hub_token is not None:
         raise ValueError(
