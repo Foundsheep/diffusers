@@ -505,6 +505,7 @@ def parse_args():
     parser.add_argument(
         "--unet_sample_size",
         nargs=2,
+        type=int,
         help=(
             "The sample size value for newly initialised unet model."
             " This will be the size for input and output of the model"
@@ -513,6 +514,7 @@ def parse_args():
     parser.add_argument(
         "--unet_block_out_channels",
         nargs=4,
+        type=int,
         help=(
             "The block out channels value for newly initialised unet model."
             " This will be the sizes of channels inside the model"
@@ -566,10 +568,6 @@ def main():
         project_config=accelerator_project_config,
     )
 
-    logger.info("==================== passed arguments ======================")
-    logger.info(f"{args}")
-    logger.info("============================================================")
-
     # Disable AMP for MPS.
     if torch.backends.mps.is_available():
         accelerator.native_amp = False
@@ -589,6 +587,10 @@ def main():
         datasets.utils.logging.set_verbosity_error()
         transformers.utils.logging.set_verbosity_error()
         diffusers.utils.logging.set_verbosity_error()
+
+    logger.info("==================== passed arguments ======================")
+    logger.info(f"{args}")
+    logger.info("============================================================")
 
     # If passed along, set the training seed now.
     if args.seed is not None:
@@ -919,6 +921,11 @@ def main():
     if accelerator.is_main_process:
         tracker_config = dict(vars(args))
         tracker_config.pop("validation_prompts")
+        
+        # DJ Added
+        # --------------------------
+        tracker_config["unet_sample_size"] = str(tracker_config["unet_sample_size"])
+        tracker_config["unet_block_out_channels"] = str(tracker_config["unet_block_out_channels"])
         accelerator.init_trackers(args.tracker_project_name, tracker_config)
 
     # Function for unwrapping if model was compiled with `torch.compile`.
