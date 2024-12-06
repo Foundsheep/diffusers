@@ -638,7 +638,7 @@ def main():
     # )
     unet = UNet2DConditionModel(
         sample_size=args.unet_sample_size,
-        block_out_channels=args.block_out_channels
+        block_out_channels=args.unet_block_out_channels,
     )
     def count_parameters(model):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
