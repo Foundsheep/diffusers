@@ -512,7 +512,7 @@ def parse_args():
     )
     parser.add_argument(
         "--unet_block_out_channels",
-        nargs=4W,
+        nargs=4,
         help=(
             "The block out channels value for newly initialised unet model."
             " This will be the sizes of channels inside the model"
