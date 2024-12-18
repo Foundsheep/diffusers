@@ -118,6 +118,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         class_embed_type: Optional[str] = None,
         num_class_embeds: Optional[int] = None,
         num_train_timesteps: Optional[int] = None,
+        num_continuous_class_embeds: Optional[int] = None,
     ):
         super().__init__()
 
@@ -160,6 +161,12 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             self.class_embedding = nn.Identity(time_embed_dim, time_embed_dim)
         else:
             self.class_embedding = None
+            
+        # continuous class embedding
+        if num_continuous_class_embeds is not None:
+            self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
+        else:
+            self.continuous_class_embedding = None
 
         self.down_blocks = nn.ModuleList([])
         self.mid_block = None
@@ -245,6 +252,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         sample: torch.Tensor,
         timestep: Union[torch.Tensor, float, int],
         class_labels: Optional[torch.Tensor] = None,
+        continuous_class_labels: Optional[torch.Tensor] = None,
         return_dict: bool = True,
     ) -> Union[UNet2DOutput, Tuple]:
         r"""
@@ -297,6 +305,15 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             emb = emb + class_emb
         elif self.class_embedding is None and class_labels is not None:
             raise ValueError("class_embedding needs to be initialized in order to use class conditioning")
+
+        # continuous class embedding
+        if self.continuous_class_embedding is not None:
+            if continuous_class_labels is None:
+                raise ValueError("continuous_class_labels should be provided when doing class conditioning")
+
+            continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
+            continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
+            emb = emb + continuous_class_emb
 
         # 2. pre-process
         skip_sample = sample
