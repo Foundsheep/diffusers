@@ -87,6 +87,10 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         num_class_embeds (`int`, *optional*, defaults to `None`):
             Input dimension of the learnable embedding matrix to be projected to `time_embed_dim` when performing class
             conditioning with `class_embed_type` equal to `None`.
+        num_continuous_class_embeds (`int`, *optional*, defaults to `None`):
+            The number of continuous classes. This will be the total dimension of inputs in `nn.Linear` embedding layers
+        multi_class_nums: (`Tuple[int]`, *optional*, defaults to `None`):
+            The number of discrete classes. The number of class types per each class is provided in tuple-like array.
     """
 
     @register_to_config
@@ -119,6 +123,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         num_class_embeds: Optional[int] = None,
         num_train_timesteps: Optional[int] = None,
         num_continuous_class_embeds: Optional[int] = None,
+        multi_class_nums: Optional[Tuple[int]] = None,
     ):
         super().__init__()
 
@@ -161,12 +166,26 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             self.class_embedding = nn.Identity(time_embed_dim, time_embed_dim)
         else:
             self.class_embedding = None
-            
+        
+        # multi class embedding
+        if multi_class_nums is not None:
+            self.multi_class_embeddings = nn.ModuleList([])
+            for num_class in multi_class_nums:
+                self.multi_class_embeddings.append(nn.Embedding(num_class, time_embed_dim))
+        else:
+            self.multi_class_embeddings = None
+        
         # continuous class embedding
         if num_continuous_class_embeds is not None:
-            self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
+            self.multi_continuous_class_embedding = nn.ModuleList([])
+            for i in range(num_continuous_class_embeds):
+                self.multi_continuous_class_embedding.append(nn.Sequential(
+                    nn.Linear(1, 4),
+                    nn.Linear(4, time_embed_dim)
+                ))
+            # self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
         else:
-            self.continuous_class_embedding = None
+            self.multi_continuous_class_embedding = None
 
         self.down_blocks = nn.ModuleList([])
         self.mid_block = None
@@ -251,8 +270,9 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         self,
         sample: torch.Tensor,
         timestep: Union[torch.Tensor, float, int],
-        class_labels: Optional[torch.Tensor] = None,
-        continuous_class_labels: Optional[torch.Tensor] = None,
+        class_labels: Optional[Union[torch.Tensor, Tuple[torch.Tensor]]] = None,
+        multi_class_labels: Optional[Union[torch.Tensor, Tuple[torch.Tensor]]] = None,
+        continuous_class_labels: Optional[Union[torch.Tensor, Tuple[torch.Tensor]]] = None,
         return_dict: bool = True,
     ) -> Union[UNet2DOutput, Tuple]:
         r"""
@@ -306,14 +326,21 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         elif self.class_embedding is None and class_labels is not None:
             raise ValueError("class_embedding needs to be initialized in order to use class conditioning")
 
+        # multi class embedding
+        if self.multi_class_embeddings is not None and class_labels is not None:
+            for i, c in enumerate(class_labels):
+                emb += self.multi_class_embeddings[i](c).to(dtype=self.dtype)
+
         # continuous class embedding
-        if self.continuous_class_embedding is not None:
+        if self.multi_continuous_class_embedding is not None:
             if continuous_class_labels is None:
                 raise ValueError("continuous_class_labels should be provided when doing class conditioning")
 
-            continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
-            continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
-            emb = emb + continuous_class_emb
+            # continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
+            # continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
+            # emb = emb + continuous_class_emb
+            for i, c in enumerate(continuous_class_labels):
+                emb += self.multi_continuous_class_embedding[i](c).to(dtype=self.dtype)
 
         # 2. pre-process
         skip_sample = sample
