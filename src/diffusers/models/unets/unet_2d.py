@@ -180,13 +180,17 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         
         # continuous class embedding
         if num_continuous_class_embeds is not None:
-            self.multi_continuous_class_embedding = nn.ModuleList([])
-            for i in range(num_continuous_class_embeds):
-                self.multi_continuous_class_embedding.append(nn.Sequential(
-                    nn.Linear(1, 4),
-                    nn.Linear(4, time_embed_dim)
-                ))
-            # self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
+            
+            # separate each linear layer from each other
+            # self.multi_continuous_class_embedding = nn.ModuleList([])
+            # for i in range(num_continuous_class_embeds):
+            #     self.multi_continuous_class_embedding.append(nn.Sequential(
+            #         nn.Linear(1, 4),
+            #         nn.Linear(4, time_embed_dim)
+            #     ))
+            
+            # # put linear layers altogether and make them affect each other
+            self.multi_continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
         else:
             self.multi_continuous_class_embedding = None
 
@@ -346,8 +350,13 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             # continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
             # continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
             # emb = emb + continuous_class_emb
-            for i, c in enumerate(continuous_class_labels):
-                emb += self.multi_continuous_class_embedding[i](c).to(dtype=self.dtype)
+
+            # # separated linear layers
+            # for i, c in enumerate(continuous_class_labels):
+            #     emb += self.multi_continuous_class_embedding[i](c).to(dtype=self.dtype)
+
+            # attached linear layers
+            emb += self.multi_continuous_class_embedding(continuous_class_labels).to(dtype=self.dtype)
 
         # 2. pre-process
         skip_sample = sample
