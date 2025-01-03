@@ -180,6 +180,18 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         
         # continuous class embedding
         if num_continuous_class_embeds is not None:
+            
+            # separate each linear layer from each other
+            self.multi_continuous_class_embedding = nn.ModuleList([])
+            linear_hidden_dim = time_embed_dim // 2 if time_embed_dim > 32 else 16
+            for i in range(num_continuous_class_embeds):
+                self.multi_continuous_class_embedding.append(nn.Sequential(
+                    nn.Linear(1, linear_hidden_dim),
+                    nn.Linear(linear_hidden_dim, time_embed_dim)
+                ))
+            
+            # # put linear layers altogether and make them affect each other
+            # self.multi_continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
             self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
         else:
             self.multi_continuous_class_embedding = None
@@ -337,6 +349,16 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             if continuous_class_labels is None:
                 raise ValueError("continuous_class_labels should be provided when doing class conditioning")
 
+            # continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
+            # continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
+            # emb = emb + continuous_class_emb
+
+            # separated linear layers
+            for i, c in enumerate(continuous_class_labels):
+                emb += self.multi_continuous_class_embedding[i](c).to(dtype=self.dtype)
+
+            # # attached linear layers
+            # emb += self.multi_continuous_class_embedding(continuous_class_labels).to(dtype=self.dtype)
             continuous_class_labels = continuous_class_labels.to(dtype=sample.dtype)
             continuous_class_emb = self.continuous_class_embedding(continuous_class_labels).to(dtype=sample.dtype)
             emb = emb + continuous_class_emb
