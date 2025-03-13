@@ -343,7 +343,12 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         if self.multi_class_embeddings is not None:
             if multi_class_labels is None:
                 raise ValueError("multi_class_labels should not be None")
+            print("11111")
+            print(f"{multi_class_labels.shape = }")
             for i, c in enumerate(multi_class_labels):
+                print("22222")
+                print(f"{c.shape}")
+                print(f"{self.multi_class_embeddings[i] = }")
                 emb += self.multi_class_embeddings[i](c).to(dtype=self.dtype)
 
         # continuous class embedding
