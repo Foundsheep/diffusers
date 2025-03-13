@@ -356,12 +356,6 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             #     emb += self.multi_continuous_class_embedding[i](c).to(dtype=self.dtype)
 
             # attached linear layers
-            print("11111111111111")
-            print(f"{continuous_class_labels.shape = }")
-            print("222222")
-            print(f"{self.multi_continuous_class_embedding.in_features = }")
-            print(f"{self.multi_continuous_class_embedding.out_features = }")
-
             emb += self.multi_continuous_class_embedding(continuous_class_labels).to(dtype=self.dtype)
 
         # 2. pre-process
