@@ -339,12 +339,17 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         elif self.class_embedding is None and class_labels is not None:
             raise ValueError("class_embedding needs to be initialized in order to use class conditioning")
 
+        print("111111111111")
+        print(f"{emb.size()}")
         # multi class embedding
         if self.multi_class_embeddings is not None:
             if multi_class_labels is None:
                 raise ValueError("multi_class_labels should not be None")
             for i, c in enumerate(multi_class_labels):
-                emb += self.multi_class_embeddings[i](c).to(dtype=self.dtype)
+                tmp_emb = self.multi_class_embeddings[i](c).to(dtype=self.dtype)
+                print("2222222")
+                print(f"{tmp_emb.size()}")
+                emb = emb + tmp_emb
 
         # continuous class embedding
         if self.multi_continuous_class_embedding is not None:
