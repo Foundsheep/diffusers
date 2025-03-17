@@ -52,7 +52,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         out_channels (`int`, *optional*, defaults to 3): Number of channels in the output.
         center_input_sample (`bool`, *optional*, defaults to `False`): Whether to center the input sample.
         time_embedding_type (`str`, *optional*, defaults to `"positional"`): Type of time embedding to use.
-        freq_shift (`float`, *optional*, defaults to 0.0): Frequency shift for Fourier time embedding.
+        freq_shift (`int`, *optional*, defaults to 0): Frequency shift for Fourier time embedding.
         flip_sin_to_cos (`bool`, *optional*, defaults to `True`):
             Whether to flip sin to cos for Fourier time embedding.
         down_block_types (`Tuple[str]`, *optional*, defaults to `("DownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D")`):
@@ -104,7 +104,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         center_input_sample: bool = False,
         time_embedding_type: str = "positional",
         time_embedding_dim: Optional[int] = None,
-        freq_shift: float = 0.0,
+        freq_shift: int = 0,
         flip_sin_to_cos: bool = True,
         down_block_types: Tuple[str, ...] = ("DownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D", "AttnDownBlock2D"),
         up_block_types: Tuple[str, ...] = ("AttnUpBlock2D", "AttnUpBlock2D", "AttnUpBlock2D", "UpBlock2D"),
