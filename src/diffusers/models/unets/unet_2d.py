@@ -176,10 +176,8 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             for num_class in multi_class_nums:
                 self.multi_class_embeddings.append(
                     nn.Sequential(
-                        [
-                            nn.Embedding(num_class, int(time_embed_dim / 2)),
-                            nn.Linear(int(time_embed_dim / 2), time_embed_dim)
-                        ]
+                        nn.Embedding(num_class, int(time_embed_dim / 2)),
+                        nn.Linear(int(time_embed_dim / 2), time_embed_dim)
                     )
                 )
         else:
@@ -199,10 +197,8 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             
             # put linear layers altogether and make them affect each other
             self.multi_continuous_class_embedding = nn.Sequential(
-                [
-                    nn.Linear(num_continuous_class_embeds, int(time_embed_dim / 2)),
-                    nn.Linear(int(time_embed_dim / 2), time_embed_dim)
-                ]
+                nn.Linear(num_continuous_class_embeds, int(time_embed_dim / 2)),
+                nn.Linear(int(time_embed_dim / 2), time_embed_dim)
             )
             self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
         else:
