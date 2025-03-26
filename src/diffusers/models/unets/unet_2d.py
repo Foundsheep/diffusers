@@ -177,6 +177,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
                 self.multi_class_embeddings.append(
                     nn.Sequential(
                         nn.Embedding(num_class, int(time_embed_dim / 2)),
+                        nn.LeakyReLU(),
                         nn.Linear(int(time_embed_dim / 2), time_embed_dim)
                     )
                 )
@@ -198,6 +199,7 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             # put linear layers altogether and make them affect each other
             self.multi_continuous_class_embedding = nn.Sequential(
                 nn.Linear(num_continuous_class_embeds, int(time_embed_dim / 2)),
+                nn.LeakyReLU(),
                 nn.Linear(int(time_embed_dim / 2), time_embed_dim)
             )
             self.continuous_class_embedding = nn.Linear(num_continuous_class_embeds, time_embed_dim)
