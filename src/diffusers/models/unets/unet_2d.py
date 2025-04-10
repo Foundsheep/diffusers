@@ -174,10 +174,12 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         if multi_class_nums is not None:
             self.multi_class_embeddings = nn.ModuleList([])
             for num_class in multi_class_nums:
-                nn.Sequential(
-                    nn.Embedding(num_class, int(time_embed_dim / 2)),
-                    nn.LeakyReLU(),
-                    nn.Linear(int(time_embed_dim / 2), time_embed_dim)
+                self.multi_class_embeddings.append(
+                    nn.Sequential(
+                        nn.Embedding(num_class, int(time_embed_dim / 2)),
+                        nn.LeakyReLU(),
+                        nn.Linear(int(time_embed_dim / 2), time_embed_dim)
+                    )
                 )
         else:
             self.multi_class_embeddings = None
