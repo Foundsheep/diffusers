@@ -357,6 +357,9 @@ class UNet2DModel(ModelMixin, ConfigMixin):
                 # other types after that share the last embedding layer
                 if i >= 2:
                     i = -1
+                print(len(self.multi_class_embeddings))
+                print(i)
+                print("=-======")
                 emb += self.multi_class_embeddings[i](c).to(dtype=self.dtype)
 
         # continuous class embedding
