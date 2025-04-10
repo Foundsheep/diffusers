@@ -174,12 +174,10 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         if multi_class_nums is not None:
             self.multi_class_embeddings = nn.ModuleList([])
             for num_class in multi_class_nums:
-                self.multi_class_embeddings.append(
-                    nn.Sequential(
-                        nn.Embedding(num_class, int(time_embed_dim / 2)),
-                        nn.LeakyReLU(),
-                        nn.Linear(int(time_embed_dim / 2), time_embed_dim)
-                    )
+                nn.Sequential(
+                    nn.Embedding(num_class, int(time_embed_dim / 2)),
+                    nn.LeakyReLU(),
+                    nn.Linear(int(time_embed_dim / 2), time_embed_dim)
                 )
         else:
             self.multi_class_embeddings = None
@@ -354,6 +352,11 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             if multi_class_labels is None:
                 raise ValueError("multi_class_labels should not be None")
             for i, c in enumerate(multi_class_labels):
+                
+                # only first two types have separate layers
+                # other types after that share the last embedding layer
+                if i >= 2:
+                    i = -1
                 emb += self.multi_class_embeddings[i](c).to(dtype=self.dtype)
 
         # continuous class embedding
